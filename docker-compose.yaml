@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    # container_name: gitlab
+    networks:
+      gitlab_network:
+    ports:
+      - 80:80
+      - 8065:8065
+    volumes:
+      - $PWD/gitlab/config:/etc/gitlab
+      - $PWD/gitlab/logs:/var/log/gitlab
+      - $PWD/gitlab/data:/var/opt/gitlab
+    # hostname: gitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab/'
+      #   mattermost_external_url 'http://gitlab:8065/'
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    # container_name: gitlab-runner
+    networks:
+      gitlab_network:
+    volumes:
+      - $PWD/gitlab-runner/config:/etc/gitlab-runner
+    depends_on:
+      - gitlab
+networks:
+  gitlab_network:
+    driver: bridge
