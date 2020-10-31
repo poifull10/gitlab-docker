@@ -7,16 +7,16 @@ services:
       gitlab_network:
     ports:
       - 80:80
-      - 8065:8065
+      - 8061:8061
     volumes:
       - $PWD/gitlab/config:/etc/gitlab
       - $PWD/gitlab/logs:/var/log/gitlab
       - $PWD/gitlab/data:/var/opt/gitlab
-    # hostname: gitlab
+    hostname: gitlab
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://gitlab/'
-      #   mattermost_external_url 'http://gitlab:8065/'
+        mattermost_external_url 'http://mattermost:8061/'
   gitlab-runner:
     image: gitlab/gitlab-runner:latest
     # container_name: gitlab-runner
@@ -26,6 +26,18 @@ services:
       - $PWD/gitlab-runner/config:/etc/gitlab-runner
     depends_on:
       - gitlab
+  dnsmasq:
+    restart: always
+    image: andyshinn/dnsmasq
+    container_name: dnsmasq
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    extra_hosts:
+      - "gitlab.local:192.168.0.107"
+      - "mattermost.local:192.168.0.107"
+    cap_add:
+      - NET_ADMIN
 networks:
   gitlab_network:
     driver: bridge

@@ -22,4 +22,6 @@ $ docker save -o gitlab-images.tar $(docker-compose config | awk '{if ($1 == "im
 ### Work on an isolated machine (target machine)
 ```
 $ docker load -i gitlab-images.tar
+$ export IP_ADDR=$YOUR_IP_ADDR
+$ docker-compose up
 ```
