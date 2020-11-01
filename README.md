@@ -31,7 +31,7 @@ $ docker-compose up -d
 ### Work on isolated machines (client machines)
 * Register host machine ip addr as a DNS server (e.g. nmtui)
 * Open your browser and access following links:
-   1. gitlab: http://gitlab.dev.jp
-   1. redmine: http://gitlab.dev.jp:10083
-   1. mattermost: http://gitlab.dev.jp:8061
+   1. gitlab: ttp://gitlab.dev.jp
+   1. redmine: ttp://gitlab.dev.jp:10083
+   1. mattermost: ttp://gitlab.dev.jp:8061
 
