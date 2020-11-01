@@ -5,7 +5,7 @@ services:
     container_name: gitlab
     networks:
       gitlab_network:
-        ipv4_address: 172.16.0.4
+        ipv4_address: 172.16.0.2
     ports:
       - 80:80
       - 8061:8061
@@ -18,19 +18,51 @@ services:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://gitlab.dev.com/'
         mattermost_external_url 'http://gitlab.dev.com:8061/'
-        mattermost[ 'gitlab_auth_endpoint' ] = 'http://gitlab.dev.com/oauth/authorize'
-        mattermost[ 'gitlab_token_endpoint' ] = 'http://gitlab.dev.com/oauth/token'
-        mattermost[ 'gitlab_user_api_endpoint' ] = 'http://gitlab.dev.com/api/v4/user'
   gitlab-runner:
     image: gitlab/gitlab-runner:latest
     container_name: gitlab-runner
     networks:
       gitlab_network:
-        ipv4_address: 172.16.0.5
+        ipv4_address: 172.16.0.3
     volumes:
       - $PWD/gitlab-runner/config:/etc/gitlab-runner
     depends_on:
       - gitlab
+  redmine-mysql:
+    restart: always
+    image: mysql:5.7.32
+    container_name: redmine-mysql
+    environment:
+      TZ: Asia/Tokyo
+      MYSQL_USER: redmine
+      MYSQL_PASSWORD: redmine
+      MYSQL_DATABASE: redmine
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - $PWD/redmine/mysql:/var/lib/mysql
+    networks:
+      gitlab_network:
+        ipv4_address: 172.16.0.4
+  redmine:
+    restart: always
+    image: redmine:latest
+    container_name: redmine
+    depends_on:
+      - redmine-mysql
+    networks:
+      gitlab_network:
+        ipv4_address: 172.16.0.5
+    ports:
+      - 10083:3000
+    environment:
+      TZ: Asia/Tokyo
+      REDMINE_DB_MYSQL: redmine-mysql
+      REDMINE_DB_DATABASE: redmine
+      REDMINE_DB_USERNAME: redmine
+      REDMINE_DB_PASSWORD: redmine
+      REDMINE_DB_ENCODING: utf8mb4
+    volumes:
+      - $PWD/redmine/redmine:/home/redmine/data
   dns:
     image: andyshinn/dnsmasq
     container_name: dns
@@ -46,7 +78,6 @@ services:
     networks:
       gitlab_network:
         ipv4_address: 172.16.0.6
-
 networks:
   gitlab_network:
     driver: bridge

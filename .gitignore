@@ -3,3 +3,5 @@ gitlab/config/
 gitlab/data/
 gitlab/logs/
 dns/hosts
+redmine/redmine
+redmine/mysql
