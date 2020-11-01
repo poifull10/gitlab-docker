@@ -2,9 +2,10 @@ version: "3.7"
 services:
   gitlab:
     image: gitlab/gitlab-ce:latest
-    # container_name: gitlab
+    container_name: gitlab
     networks:
       gitlab_network:
+        ipv4_address: 172.16.0.4
     ports:
       - 80:80
       - 8061:8061
@@ -15,29 +16,41 @@ services:
     hostname: gitlab
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://gitlab/'
-        mattermost_external_url 'http://mattermost:8061/'
+        external_url 'http://gitlab.dev.com/'
+        mattermost_external_url 'http://gitlab.dev.com:8061/'
+        mattermost[ 'gitlab_auth_endpoint' ] = 'http://gitlab.dev.com/oauth/authorize'
+        mattermost[ 'gitlab_token_endpoint' ] = 'http://gitlab.dev.com/oauth/token'
+        mattermost[ 'gitlab_user_api_endpoint' ] = 'http://gitlab.dev.com/api/v4/user'
   gitlab-runner:
     image: gitlab/gitlab-runner:latest
-    # container_name: gitlab-runner
+    container_name: gitlab-runner
     networks:
       gitlab_network:
+        ipv4_address: 172.16.0.5
     volumes:
       - $PWD/gitlab-runner/config:/etc/gitlab-runner
     depends_on:
       - gitlab
-  dnsmasq:
-    restart: always
+  dns:
     image: andyshinn/dnsmasq
-    container_name: dnsmasq
+    container_name: dns
     ports:
-      - "53:53/udp"
-      - "53:53/tcp"
-    extra_hosts:
-      - "gitlab.local:192.168.0.107"
-      - "mattermost.local:192.168.0.107"
+      - 53:53/udp
+      - 53:53/tcp
+    volumes:
+      - $PWD/dns/dnsmasq.conf:/etc/dnsmasq.conf
+      - $PWD/dns/hosts:/etc/hosts
+    restart: always
     cap_add:
       - NET_ADMIN
+    networks:
+      gitlab_network:
+        ipv4_address: 172.16.0.6
+
 networks:
   gitlab_network:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.0.0/24
