@@ -2,3 +2,4 @@
 gitlab/config/
 gitlab/data/
 gitlab/logs/
+dns/hosts
