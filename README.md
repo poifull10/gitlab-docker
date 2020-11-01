@@ -19,9 +19,19 @@ $ docker save -o gitlab-images.tar $(docker-compose config | awk '{if ($1 == "im
 ```
 
 
-### Work on an isolated machine (target machine)
+### Work on an isolated machine (host machine)
 ```
 $ docker load -i gitlab-images.tar
+$ sudo systemctl stop systemd-resolved 
 $ export IP_ADDR=$YOUR_IP_ADDR
-$ docker-compose up
+$ ./setup.bash
+$ docker-compose up -d
 ```
+
+### Work on isolated machines (client machines)
+* Register host machine ip addr as a DNS server (e.g. nmtui)
+* Open your browser and access following links:
+   1. gitlab: http://gitlab.dev.jp
+   1. redmine: http://gitlab.dev.jp:10083
+   1. mattermost: http://gitlab.dev.jp:8061
+
