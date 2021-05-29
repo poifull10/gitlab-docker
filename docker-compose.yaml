@@ -18,6 +18,8 @@ services:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://gitlab.dev.com/'
         mattermost_external_url 'http://gitlab.dev.com:8061/'
+    dns:
+      - $IP_ADDR
   gitlab-runner:
     image: gitlab/gitlab-runner:latest
     container_name: gitlab-runner
@@ -28,6 +30,8 @@ services:
       - $PWD/gitlab-runner/config:/etc/gitlab-runner
     depends_on:
       - gitlab
+    dns:
+      - $IP_ADDR
   redmine-mysql:
     restart: always
     image: mysql:5.7.32
@@ -43,6 +47,8 @@ services:
     networks:
       gitlab_network:
         ipv4_address: 172.16.0.4
+    dns:
+      - $IP_ADDR
   redmine:
     restart: always
     image: redmine:latest
@@ -63,6 +69,8 @@ services:
       REDMINE_DB_ENCODING: utf8mb4
     volumes:
       - $PWD/redmine/redmine:/home/redmine/data
+    dns:
+      - $IP_ADDR
   dns:
     image: andyshinn/dnsmasq
     container_name: dns
